@@ -35,3 +35,20 @@ python main.py
 - `states.py`：定義流程狀態模型
 - `nodes.py`：定義查詢 Loki 與分析節點
 - `main.py`：組裝流程與執行
+
+## 🐳 使用 Docker Compose 模擬日誌
+
+本專案提供 `docker-compose.yml`，可以快速啟動 Loki、Promtail 與一個產生測試日誌的容器。
+
+```bash
+docker compose up
+```
+
+執行後，`log-generator` 容器會每秒隨機輸出 INFO、WARNING 或 ERROR 訊息，Promtail 會將這些日誌轉送到 Loki。
+
+Promtail 透過掛載的 `/var/run/docker.sock` 讀取所有容器的 STDOUT/STDERR，
+並在傳送至 Loki 時依容器名稱設定 `job` 標籤。因此 `log-generator` 的日誌可
+以 `{job="log-generator"}` 為條件在 Loki 中查詢。
+
+Loki 預設監聽在 `http://localhost:3100`，請將 `nodes.py` 中的 `LOKI_BASE_URL` 改為此網址，即可執行 `main.py` 進行日誌分析。
+
